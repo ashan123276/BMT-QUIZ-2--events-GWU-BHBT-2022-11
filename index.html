@@ -3,36 +3,815 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechCon 2025 Schedule</title>
-    
-    <link rel="stylesheet" href="styles.css"> 
+    <title>TechCon 2025 Event Schedule</title>
+    <!-- Custom Font from Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+    <style>
+        /* BASE STYLES & VARIABLES */
+        :root {
+            /* Light Theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f7fa;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --accent-color: #4f46e5;
+            --accent-light: #eef2ff;
+            --border-color: #e5e7eb;
+            --highlight-bg: #fde047;
+            --toggle-bg: #d1d5db;
+        }
+
+        /* Dark Theme Variables */
+        body.dark-mode {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --card-bg: #1f2937;
+            --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --accent-color: #818cf8;
+            --accent-light: #374151;
+            --border-color: #374151;
+            --highlight-bg: #8b5cf6;
+            --toggle-bg: #4b5563;
+        }
+
+        /* GLOBAL STYLES */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--accent-color);
+        }
+
+        /* DARK MODE TOGGLE (Level 3/4) */
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--toggle-bg);
+            border: none;
+            cursor: pointer;
+            width: 50px;
+            height: 26px;
+            border-radius: 13px;
+            position: relative;
+            padding: 2px;
+            transition: background 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            transition: transform 0.3s, background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode .theme-toggle::before {
+            transform: translateX(24px);
+        }
+
+        /* MAIN CONTENT - SEARCH & FILTER (Level 2/7) */
+        .controls {
+            padding: 2rem 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, color 0.2s, transform 0.1s, border-color 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .filter-btn:focus {
+            outline: 3px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-color);
+            color: var(--card-bg);
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+        }
+
+        /* EVENT GRID (Responsiveness) */
+        #event-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        /* EVENT CARD (Level 1 Styling) */
+        .event-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .event-card:focus-within {
+             outline: 3px solid var(--accent-color);
+             outline-offset: 2px;
+        }
+
+        .event-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            /* Placeholder styling */
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Fallback for placeholder images if not provided */
+        .event-card img[src^="images/"] {
+            content: "🖼️";
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .card-content p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+        
+        .card-meta {
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meta-type {
+            font-weight: 600;
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .meta-date {
+             color: var(--text-secondary);
+        }
+
+        /* Search Highlight (Level 7) */
+        .event-card mark {
+            background-color: var(--highlight-bg);
+            color: var(--text-primary);
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* ARIA Live Region for Accessibility (Level 9) */
+        .aria-live-status {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        
+        /* PWA Info */
+        #pwa-status {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+            background-color: #10b981;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .controls {
+                padding: 1rem 0;
+            }
+            .filter-buttons {
+                gap: 0.5rem;
+            }
+            .filter-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            .event-card:hover {
+                transform: none; /* Disable lift effect on mobile for better touch performance */
+            }
+        }
+    </style>
 </head>
 <body>
 
     <header>
-        <h1>TechCon 2025 Event Schedule</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#schedule">Schedule</a></li>
-                <li><a href="#speakers">Speakers</a></li>
-            </ul>
-        </nav>
+        <div class="container">
+            <h1>TechCon 2025 Event Schedule</h1>
+            <div class="theme-toggle-container">
+                <label for="theme-toggle-btn" style="margin-right: 0.5rem; font-size: 0.9rem; font-weight: 600;">Theme:</label>
+                <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle dark mode"></button>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <h2>Conference Schedule Highlights</h2>
+    <main class="container">
         
-        <section id="event-container">
-            <p>Loading event schedule...</p>
-        </section>
+        <div class="controls">
+            <!-- Search & Highlight (Level 7) -->
+            <input type="text" id="search-input" class="search-input" placeholder="Search events by title or description..." aria-label="Search events">
+            
+            <div class="filter-buttons" id="filter-buttons" role="group" aria-label="Event Type Filters">
+                <!-- Buttons generated by JS (Level 2) -->
+            </div>
+            
+            <!-- ARIA Live Region (Level 9) -->
+            <div id="aria-live-status" class="aria-live-status" aria-live="polite"></div>
+            
+            <!-- PWA Status (Level 10) -->
+            <div id="pwa-status" style="display: none;">✅ Offline Ready (PWA Caching Active)</div>
+        </div>
 
+        <section id="event-container" aria-label="Conference Event Cards">
+            <!-- Event cards will be dynamically inserted here -->
+        </section>
+        
     </main>
 
     <footer>
-        <p>&copy; 2025 TechCon. All rights reserved. | <a href="#">Privacy Policy</a></p>
+        <div class="container">
+            &copy; 2025 TechCon. All rights reserved. | Built with 💡 and 💻.
+        </div>
     </footer>
 
-    <script src="scripts.js"></script> 
+    <script>
+        // --- CORE DATA & STATE ---
+        // Single source of truth for event data
+        const events = [
+            // --- Day 1: Nov 20, 2025 ---
+            { title: "Opening Keynote: The Future of AI", type: "Keynote", date: "2025-11-20T09:00:00", description: "Join industry visionary Dr. Evelyn Reed as she unveils the next decade of AI innovation.", image: "images/keynote.jpg" },
+            { title: "Advanced JavaScript Workshop", type: "Workshop", date: "2025-11-20T10:30:00", description: "A 3-hour, hands-on deep-dive into asynchronous JavaScript, Promises, and modern ES6+ features.", image: "images/workshop-js.jpg" },
+            { title: "Cybersecurity in the Cloud Era", type: "Talk", date: "2025-11-20T11:00:00", description: "Explore the evolving landscape of cloud security threats and proactive defense strategies.", image: "images/cybersecurity.jpg" },
+            { title: "Introduction to Quantum Computing", type: "Talk", date: "2025-11-20T14:00:00", description: "A beginner-friendly overview of quantum mechanics and its potential to revolutionize computing.", image: "images/quantum.jpg" },
+            { title: "Networking Mixer & Welcome Reception", type: "Social", date: "2025-11-20T17:00:00", description: "Connect with fellow attendees, speakers, and sponsors over drinks and appetizers.", image: "images/mixer.jpg" },
+
+            // --- Day 2: Nov 21, 2025 ---
+            { title: "The Ethics of Machine Learning", type: "Talk", date: "2025-11-21T09:30:00", description: "A critical discussion on the societal impact and ethical responsibilities in ML development.", image: "images/ethics.jpg" },
+            { title: "Building Scalable Web Apps with Microservices", type: "Talk", date: "2025-11-21T10:30:00", description: "Learn the principles of microservices from lead engineers at a top tech company.", image: "images/scalable.jpg" },
+            { title: "Mastering React Performance", type: "Workshop", date: "2025-11-21T13:00:00", description: "Optimize your React applications by learning memoization, code splitting, and bundle analysis.", image: "images/react.jpg" },
+            { title: "The Psychology of User Experience (UX)", type: "Talk", date: "2025-11-21T14:00:00", description: "Understand the cognitive biases and psychological principles that drive effective UX design.", image: "images/psychology-ux.jpg" },
+            { title: "Panel: The Future of Remote Work in Tech", type: "Panel", date: "2025-11-21T16:00:00", description: "Industry leaders discuss the challenges, tools, and culture of building successful remote-first teams.", image: "images/panel-remote.jpg" },
+
+            // --- Day 3: Nov 22, 2025 ---
+            { title: "UI/UX Design Fundamentals for Developers", type: "Workshop", date: "2025-11-22T09:00:00", description: "A practical workshop on visual hierarchy, color theory, and typography that every developer should know.", image: "images/ui-ux.jpg" },
+            { title: "From Monolith to Serverless", type: "Talk", date: "2025-11-22T10:00:00", description: "A case study on migrating a large-scale legacy application to a modern serverless architecture.", image: "images/serverless.jpg" },
+            { title: "State of Web Assembly in 2025", type: "Talk", date: "2025-11-22T11:30:00", description: "Discover how WebAssembly is enabling near-native performance for web applications.", image: "images/webassembly.jpg" },
+            { title: "Data Visualization with D3.js", type: "Workshop", date: "2025-11-22T13:30:00", description: "Learn to create stunning, interactive data visualizations for the web from scratch.", image: "images/d3.jpg" },
+            { title: "Closing Panel: Ask Me Anything with Speakers", type: "Panel", date: "2025-11-22T16:00:00", description: "An open Q&A session with a panel of the conference's top speakers. No topic is off-limits!", image: "images/panel-ama.jpg" },
+
+            // --- Bonus / Past Events for testing ---
+            { title: "Pre-Conference Hackathon", type: "Social", date: "2025-11-19T09:00:00", description: "A 24-hour coding challenge with prizes for the most innovative projects. Kicks off before the main event.", image: "images/hackathon.jpg" },
+            { title: "API Design Best Practices", type: "Talk", date: "2025-11-21T15:00:00", description: "Learn how to design, document, and maintain clean, consistent, and easy-to-use RESTful APIs.", image: "images/api.jpg" },
+            { title: "DevOps Culture and Tooling", type: "Talk", date: "2025-11-20T15:30:00", description: "An introduction to the principles of DevOps and the tools that enable continuous integration and deployment.", image: "images/devops.jpg" },
+            { title: "Mobile-First Design in Practice", type: "Workshop", date: "2025-11-20T13:00:00", description: "A hands-on session focusing on practical techniques for designing and building mobile-first responsive websites.", image: "images/mobile-first.jpg" },
+            { title: "Closing Ceremony & Awards", type: "Social", date: "2025-11-22T17:30:00", description: "Join us as we celebrate the best of the conference and announce the hackathon winners.", image: "images/awards.jpg" }
+        ];
+
+        // Global State Variables
+        let currentFilter = 'All';
+        let currentSearchTerm = '';
+        let timerIntervals = [];
+
+        // DOM Elements
+        const eventContainer = document.getElementById('event-container');
+        const filterButtonsContainer = document.getElementById('filter-buttons');
+        const searchInput = document.getElementById('search-input');
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        const ariaLiveStatus = document.getElementById('aria-live-status');
+        const pwaStatus = document.getElementById('pwa-status');
+
+        // --- UTILITY FUNCTIONS ---
+
+        /**
+         * Formats a raw ISO date string into a user-friendly format (e.g., Nov 20, 9:00 AM)
+         * @param {string} isoDate - The ISO date string from the event object.
+         * @returns {string} Formatted date string.
+         */
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+            const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+            return date.toLocaleString('en-US', options);
+        }
+        
+        /**
+         * Creates an "Add to Calendar" Google Calendar link (Level 5).
+         * @param {object} event - The event object.
+         * @returns {string} Google Calendar URL.
+         */
+        function createGoogleCalendarLink(event) {
+            const startDate = new Date(event.date);
+            // Assume 1 hour duration for simplicity
+            const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); 
+
+            const formatCalDate = (date) => 
+                date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+            const baseURL = 'https://www.google.com/calendar/render?action=TEMPLATE';
+            const text = encodeURIComponent(event.title);
+            const dates = formatCalDate(startDate) + '/' + formatCalDate(endDate);
+            const details = encodeURIComponent(event.description);
+
+            return `${baseURL}&text=${text}&dates=${dates}&details=${details}`;
+        }
+
+        // --- LEVEL 6: LIVE COUNTDOWN LOGIC ---
+
+        /**
+         * Updates the countdown timer for a specific event card.
+         * @param {HTMLElement} element - The span element to update.
+         * @param {string} isoDate - The ISO date string of the event.
+         */
+        function updateCountdown(element, isoDate) {
+            const eventDate = new Date(isoDate).getTime();
+            
+            // Function to run every second
+            const timerFn = () => {
+                const now = new Date().getTime();
+                const distance = eventDate - now;
+
+                if (distance < 0) {
+                    element.textContent = "Event has ended";
+                    clearInterval(element.intervalId); // Stop the specific timer
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            };
+
+            // Run immediately and then set interval
+            timerFn();
+            const intervalId = setInterval(timerFn, 1000);
+            element.intervalId = intervalId; // Attach ID to element for cleanup
+            timerIntervals.push(intervalId); // Global list for full cleanup
+        }
+        
+        /** Clears all running countdown intervals */
+        function clearAllIntervals() {
+            timerIntervals.forEach(clearInterval);
+            timerIntervals = [];
+        }
+
+
+        // --- LEVEL 7: SEARCH & HIGHLIGHT LOGIC ---
+
+        /**
+         * Wraps the search term in <mark> tags within a text string.
+         * @param {string} text - The full text content.
+         * @param {string} term - The search term.
+         * @returns {string} HTML string with <mark> tags applied.
+         */
+        function highlightText(text, term) {
+            if (!term) return text;
+            
+            const regex = new RegExp(`(${term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+            
+            // Replace the matched term with the term wrapped in <mark>
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+        
+        /**
+         * Filters the events array based on current criteria (filter type and search term).
+         * @returns {Array} The filtered list of events.
+         */
+        function getFilteredEvents() {
+            return events.filter(event => {
+                // 1. Filter by Type (Level 2)
+                const typeMatch = currentFilter === 'All' || event.type === currentFilter;
+                
+                // 2. Filter by Search Term (Level 7)
+                const searchMatch = !currentSearchTerm || 
+                    event.title.toLowerCase().includes(currentSearchTerm.toLowerCase()) || 
+                    event.description.toLowerCase().includes(currentSearchTerm.toLowerCase());
+                
+                return typeMatch && searchMatch;
+            });
+        }
+
+
+        // --- CORE RENDERING FUNCTION ---
+
+        /**
+         * Generates and inserts the event cards into the DOM.
+         * Includes Level 6 (Countdown) and Level 7 (Highlighting).
+         * @param {Array} filteredEvents - The list of events to render.
+         */
+        function renderEvents(filteredEvents) {
+            // Cleanup previous state
+            clearAllIntervals();
+            eventContainer.innerHTML = ''; 
+            
+            // Create a DocumentFragment for performant DOM insertion
+            const fragment = document.createDocumentFragment();
+
+            filteredEvents.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                
+                // Apply search highlighting
+                const highlightedTitle = highlightText(event.title, currentSearchTerm);
+                const highlightedDescription = highlightText(event.description, currentSearchTerm);
+
+                card.innerHTML = `
+                    <img src="${event.image}" alt="Image for ${event.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x200/4f46e5/ffffff?text=${event.type}'">
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="meta-type">${event.type}</span>
+                            <span class="meta-date">${formatDate(event.date)}</span>
+                        </div>
+                        <h2 tabindex="0">${highlightedTitle}</h2>
+                        <p>${highlightedDescription}</p>
+                        <div class="countdown-timer" data-date="${event.date}" aria-label="Time remaining"></div>
+                        <a href="${createGoogleCalendarLink(event)}" target="_blank" class="filter-btn" style="text-align: center; margin-top: 10px; text-decoration: none;" tabindex="0">
+                            Add to Calendar (Level 5)
+                        </a>
+                    </div>
+                `;
+                fragment.appendChild(card);
+            });
+            
+            eventContainer.appendChild(fragment);
+            
+            // Initialize and start all countdown timers after insertion
+            document.querySelectorAll('.countdown-timer').forEach(timerEl => {
+                updateCountdown(timerEl, timerEl.dataset.date);
+            });
+            
+            // Level 9: Announce results for Accessibility
+            updateAriaLiveStatus(filteredEvents.length);
+        }
+
+        /** Refreshes the display based on current state */
+        function refreshDisplay() {
+            const filtered = getFilteredEvents();
+            renderEvents(filtered);
+        }
+
+        // --- LEVEL 2: FILTER HANDLERS ---
+
+        /**
+         * Generates and attaches the filter buttons based on unique event types.
+         */
+        function setupFilterButtons() {
+            const uniqueTypes = ['All', ...new Set(events.map(e => e.type))];
+            
+            uniqueTypes.forEach(type => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = type;
+                btn.setAttribute('data-filter', type);
+                btn.setAttribute('aria-pressed', type === currentFilter);
+                if (type === currentFilter) {
+                    btn.classList.add('active');
+                }
+                btn.addEventListener('click', () => handleFilterClick(type));
+                filterButtonsContainer.appendChild(btn);
+            });
+        }
+        
+        /**
+         * Handles filter button clicks.
+         * @param {string} type - The event type to filter by.
+         */
+        function handleFilterClick(type) {
+            currentFilter = type;
+            // Update button active states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const isActive = btn.dataset.filter === type;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive);
+            });
+            
+            refreshDisplay();
+        }
+
+        // --- LEVEL 7: SEARCH HANDLER ---
+
+        /**
+         * Handles input events on the search box (Level 7).
+         */
+        function handleSearchInput() {
+            // Debounce or Throttle would be used in a production app for performance
+            currentSearchTerm = searchInput.value.trim();
+            refreshDisplay();
+        }
+        
+        // --- LEVEL 9: ACCESSIBILITY HANDLER ---
+
+        /**
+         * Updates the ARIA live region for screen readers.
+         * @param {number} count - The number of visible results.
+         */
+        function updateAriaLiveStatus(count) {
+            let statusText = `${count} events now visible.`;
+            if (currentSearchTerm) {
+                statusText += ` Filtered by search term "${currentSearchTerm}".`;
+            }
+            if (currentFilter !== 'All') {
+                statusText += ` Filtered by type: ${currentFilter}.`;
+            }
+            // A common pattern is to set innerText, wait briefly, then clear it 
+            // to ensure the screen reader announces the change once.
+            ariaLiveStatus.textContent = statusText;
+        }
+
+        // --- LEVEL 3/4: DARK MODE LOGIC ---
+
+        /**
+         * Sets up the initial theme based on persistence and system preference.
+         */
+        function setupTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            let initialTheme = 'light';
+            
+            if (storedTheme) {
+                // Level 4: Use persistent choice
+                initialTheme = storedTheme;
+            } else if (prefersDark) {
+                // Level 3: Use system preference
+                initialTheme = 'dark';
+            }
+
+            if (initialTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+
+        /**
+         * Toggles the theme and persists the user's choice (Level 3/4).
+         */
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            const newTheme = isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        }
+
+
+        // --- LEVEL 10: PWA / SERVICE WORKER LOGIC ---
+
+        /**
+         * Registers the Service Worker.
+         */
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    // Service Worker script content as a Blob (required for single-file PWA)
+                    const swScript = `
+                        const CACHE_NAME = 'techcon-v1';
+                        const urlsToCache = [
+                            '/',
+                            'index.html'
+                            // NOTE: Cannot reliably cache external assets (like Google Fonts) or unknown assets (images/) 
+                            // in a single file environment without a proper build step, but core HTML/JS/CSS is cached.
+                        ];
+
+                        self.addEventListener('install', (event) => {
+                            // Perform install steps
+                            event.waitUntil(
+                                caches.open(CACHE_NAME)
+                                    .then((cache) => {
+                                        return cache.addAll(urlsToCache);
+                                    })
+                            );
+                        });
+
+                        self.addEventListener('fetch', (event) => {
+                            event.respondWith(
+                                caches.match(event.request)
+                                    .then((response) => {
+                                        // Cache hit - return response
+                                        if (response) {
+                                            return response;
+                                        }
+                                        
+                                        // No cache hit - fetch from network
+                                        return fetch(event.request).then(
+                                            (response) => {
+                                                // Check if we received a valid response
+                                                if (!response || response.status !== 200 || response.type !== 'basic') {
+                                                    return response;
+                                                }
+
+                                                // IMPORTANT: Clone the response. A response is a stream
+                                                // and can only be consumed once. We need to consume it once 
+                                                // to return it to the browser and once to put it in the cache.
+                                                const responseToCache = response.clone();
+
+                                                caches.open(CACHE_NAME)
+                                                    .then((cache) => {
+                                                        // Only cache GET requests and non-opaque responses
+                                                        if (event.request.method === 'GET' && !event.request.url.startsWith('chrome-extension')) {
+                                                            cache.put(event.request, responseToCache);
+                                                        }
+                                                    });
+
+                                                return response;
+                                            }
+                                        );
+                                    })
+                            );
+                        });
+                        
+                        self.addEventListener('activate', (event) => {
+                            // Clean up old caches
+                            const cacheWhitelist = [CACHE_NAME];
+                            event.waitUntil(
+                                caches.keys().then((cacheNames) => {
+                                    return Promise.all(
+                                        cacheNames.map((cacheName) => {
+                                            if (cacheWhitelist.indexOf(cacheName) === -1) {
+                                                return caches.delete(cacheName);
+                                            }
+                                        })
+                                    );
+                                })
+                            );
+                            self.clients.claim();
+                        });
+                    `;
+
+                    // Create a Blob and URL for the worker
+                    const swBlob = new Blob([swScript], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+
+                    navigator.serviceWorker.register(swUrl)
+                        .then((reg) => {
+                            console.log('Service Worker registered successfully!', reg);
+                            pwaStatus.style.display = 'block';
+                        })
+                        .catch((error) => {
+                            console.error('Service Worker registration failed:', error);
+                        });
+                        
+                } catch (e) {
+                    console.error('Service Worker setup error:', e);
+                }
+            } else {
+                 console.log('Service Workers are not supported by this browser.');
+            }
+        }
+
+
+        // --- INITIALIZATION ---
+
+        window.onload = () => {
+            // 1. Setup Theme (Level 3/4)
+            setupTheme();
+            themeToggleButton.addEventListener('click', toggleTheme);
+
+            // 2. Setup Filter Buttons (Level 2)
+            setupFilterButtons();
+            
+            // 3. Setup Search Input (Level 7)
+            searchInput.addEventListener('input', handleSearchInput);
+            
+            // 4. Initial Display
+            refreshDisplay();
+            
+            // 5. Register PWA Service Worker (Level 10)
+            registerServiceWorker();
+        };
+
+    </script>
 </body>
 </html>
